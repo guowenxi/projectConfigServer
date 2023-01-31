@@ -12,7 +12,7 @@ import { Devicegroupitems } from "./Devicegroupitems";
 
 @Index("device_group_id", ["deviceGroupId"], {})
 @Index("fk1", ["type"], {})
-@Entity("devicegroup", { schema: "mynest" })
+@Entity("devicegroup", { schema: "jy_base" })
 export class Devicegroup {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

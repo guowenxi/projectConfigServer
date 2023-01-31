@@ -29,15 +29,30 @@ export class savePointType {
 export class EquipConfigureController {
   constructor(private readonly EquipConfigureService: EquipConfigureService) { }
 
+  // meterType 1设备表 2 电表 3 水表
+
   // 表单查询
   @Get('/getEquipConfigureList')
-  async getList(@Query('key') key: any, @Query('deviceGroupId') deviceGroupId: any, @Query('pageSize') pageSize, @Query('pageNo') pageNo) {
+  async getList(
+    @Query('key') key: any,
+    @Query('deviceGroupId') deviceGroupId: any,
+    @Query('pageSize') pageSize,
+    @Query('pageNo') pageNo,
+    @Query('meterType') meterType
+  ) {
     return this.EquipConfigureService.getList({
       key,
+      meterType,
       deviceGroupId,
       pageSize,
       pageNo
     })
+  }
+
+  // 查询所有的设备
+  @Get('/getAllEquipConfigureList')
+  async getAllEList() {
+    return this.EquipConfigureService.getAllList()
   }
 
   // 查询设备组类型
@@ -63,10 +78,21 @@ export class EquipConfigureController {
     })
   }
 
+  @Get('/getAllPointConfigureList')
+  async getAllPointConfigureList(
+    @Query('id') id: any) {
+    if (!!!id) {
+      return error('Id参数未传')
+    }
+    return this.EquipConfigureService.getAllPointConfigureList({
+      id
+    })
+  }
+
   //查询参数配置表中的参数 及其下拉列表
   @Get('/getAttributedictionaryList')
-  async getAttributedictionaryList() {
-    return this.EquipConfigureService.getAttributedictionaryList()
+  async getAttributedictionaryList(@Query('meterType') meterType) {
+    return this.EquipConfigureService.getAttributedictionaryList(meterType)
   }
 
   // 查询全部点位列表树图

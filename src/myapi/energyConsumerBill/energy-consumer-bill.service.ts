@@ -60,6 +60,37 @@ export class EnergyConsumerBillService {
   async addone(obj: EnergyBillingDto) {
     let error1 = error
     try {
+
+      if (!!obj.EnergyBillingItems && obj.EnergyBillingItems.length != 0) {
+        let newArry = []
+        const newEnergyBillingItems = obj.EnergyBillingItems
+
+        for (let i = 0; i < newEnergyBillingItems.length; i++) {
+          const res = newEnergyBillingItems[i];
+
+          if (!!!res.startTime || !!!res.endTime || !!!res.rate) {
+            return error1('缺少参数')
+          }
+
+          const newobj: any = {
+            id: null,
+            energyId: obj.energyId,
+            startTime: res.startTime || null,
+            endTime: res.endTime || null,
+            timeType: res.timeType || null,
+            rate: res.rate || null,
+          }
+
+          newArry.push(newobj)
+        }
+
+        await this.EnergyBillingItemsRepository
+          .createQueryBuilder()
+          .insert()
+          .into(EnergyBillingItems)
+          .values(newArry).execute();
+      }
+
       await this.EnergyBillingRepository
         .createQueryBuilder()
         .insert()
@@ -72,30 +103,9 @@ export class EnergyConsumerBillService {
           rate: obj.rate || null
         }).execute();
 
-      if (!!obj.EnergyBillingItems && obj.EnergyBillingItems.length != 0) {
-        let newArry = []
-        obj.EnergyBillingItems.map((res) => {
-          const newobj: any = {
-            id: null,
-            energyId: obj.energyId,
-            startTime: res.startTime,
-            endTime: res.endTime,
-            timeType: res.timeType,
-            rate: res.rate,
-          }
-          newArry.push(newobj)
-        })
-        await this.EnergyBillingItemsRepository
-          .createQueryBuilder()
-          .insert()
-          .into(EnergyBillingItems)
-          .values(newArry).execute();
-        return success('')
-      }
-
       return success('')
     } catch (error) {
-      return error1(error)
+      return error1('系统错误', error)
     }
   }
 
@@ -105,11 +115,8 @@ export class EnergyConsumerBillService {
     pageSize,
     pageNo
   }) {
-
     let error1 = error
-
     try {
-
       let total = await this.EnergyBillingRepository
         .createQueryBuilder('EnergyBilling')
         .leftJoinAndSelect(Applytypes, 'Applytypes', 'EnergyBilling.type = Applytypes.typeId AND Applytypes.isDelete != 1')
@@ -135,6 +142,7 @@ export class EnergyConsumerBillService {
           Applytypes.typeId as type
           `
         )
+        .orderBy("EnergyBilling.id", "DESC")
         .getRawMany();
 
       let obj: pageType = {
@@ -179,7 +187,7 @@ export class EnergyConsumerBillService {
 
       return success('', data)
     } catch (error) {
-      return error1(error)
+      return error1('系统错误', error)
     }
   }
 

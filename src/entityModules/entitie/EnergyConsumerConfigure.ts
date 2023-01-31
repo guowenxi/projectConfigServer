@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("energy_consumer_configure", { schema: "mynest" })
+@Entity("energy_consumer_configure", { schema: "jy_base" })
 export class EnergyConsumerConfigure {
   @PrimaryGeneratedColumn({ type: "int", name: "id", comment: "能耗表配置" })
   id: number;

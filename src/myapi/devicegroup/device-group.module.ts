@@ -1,4 +1,7 @@
-import { Applytypes } from '@modules/entitie/Applytypes';
+
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { ConfigurePointConfigure } from '@modules/entitie/ConfigurePointConfigure';
 import { DeviceDataitemDictionaries } from '@modules/entitie/DeviceDataitemDictionaries';
 import { Devicegroup } from '@modules/entitie/Devicegroup';
@@ -7,8 +10,8 @@ import { ElectroMeterConfigure } from '@modules/entitie/ElectroMeterConfigure';
 import { EquipConfigure } from '@modules/entitie/EquipConfigure';
 import { PointPosition } from '@modules/entitie/PointPosition';
 import { WaterMeterConfigure } from '@modules/entitie/WaterMeterConfigure';
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { Applytypes } from '@modules/entitie/Applytypes';
 import { DeviceGroupController } from './device-group.controller';
 import { DeviceGroupService } from './device-group.service';
 

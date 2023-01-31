@@ -10,12 +10,11 @@ import { Devicegroup } from '@modules/entitie/Devicegroup';
 import { Devicegroupitems } from '@modules/entitie/Devicegroupitems';
 import { ModuleInfo } from '@modules/entitie/ModuleInfo';
 import { PointPosition } from '@modules/entitie/PointPosition';
-import { ElectroMeterConfigure } from '@modules/entitie/ElectroMeterConfigure';
 import { EnergyBilling } from '@modules/entitie/EnergyBilling';
 
 import { EnergyMeterConfigureController } from './energy-meter-configure.controller';
 import { EnergyMeterConfigureService } from './energy-meter-configure.service';
-import { WaterMeterConfigure } from '@modules/entitie/WaterMeterConfigure';
+import { EquipConfigure } from '@modules/entitie/EquipConfigure';
 
 
 @Module({
@@ -28,9 +27,7 @@ import { WaterMeterConfigure } from '@modules/entitie/WaterMeterConfigure';
     ConfigurePointBind,
     PointPosition,
     EnergyBilling,
-
-    ElectroMeterConfigure,
-    WaterMeterConfigure
+    EquipConfigure,
   ])],
   controllers: [EnergyMeterConfigureController],
   providers: [EnergyMeterConfigureService]

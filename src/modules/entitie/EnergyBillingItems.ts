@@ -10,7 +10,7 @@ import {
 import { EnergyBilling } from "./EnergyBilling";
 
 @Index("energice_fk1", ["energyId"], {})
-@Entity("energy_billing_items", { schema: "mynest" })
+@Entity("energy_billing_items", { schema: "jy_base" })
 export class EnergyBillingItems extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id", comment: "能耗计费子表" })
   id: number;
@@ -47,11 +47,11 @@ export class EnergyBillingItems extends BaseEntity {
   })
   rate: number;
 
-  @ManyToOne(
-    () => EnergyBilling,
-    (energyBilling) => energyBilling.energyBillingItems,
-    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
-  )
-  @JoinColumn([{ name: "energy_id", referencedColumnName: "energyId" }])
-  energy: EnergyBilling;
+  // @ManyToOne(
+  //   () => EnergyBilling,
+  //   (energyBilling) => energyBilling.energyBillingItems,
+  //   { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
+  // )
+  // @JoinColumn([{ name: "energy_id", referencedColumnName: "energyId" }])
+  // energy: EnergyBilling;
 }

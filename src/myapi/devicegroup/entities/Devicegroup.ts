@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("devicegroup", { schema: "mynest" })
+@Entity("devicegroup", { schema: "jy_base" })
 export class Devicegroup {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

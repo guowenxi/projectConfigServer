@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("energy_item_type", { schema: "mynest" })
+@Entity("energy_item_type", { schema: "jy_base" })
 export class EnergyItemType {
   @PrimaryGeneratedColumn({ type: "int", name: "id", comment: "主键" })
   id: number;

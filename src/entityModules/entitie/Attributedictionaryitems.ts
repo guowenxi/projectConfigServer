@@ -9,7 +9,7 @@ import {
 import { Attributedictionary } from "./Attributedictionary";
 
 @Index("fk_1", ["attributeId"], {})
-@Entity("attributedictionaryitems", { schema: "mynest" })
+@Entity("attributedictionaryitems", { schema: "jy_base" })
 export class Attributedictionaryitems {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

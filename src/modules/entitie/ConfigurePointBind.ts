@@ -1,7 +1,7 @@
 import { BaseEntity } from "@modules/commonModule/baseEntity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("configure_point_bind", { schema: "mynest" })
+@Entity("configure_point_bind", { schema: "jy_base" })
 export class ConfigurePointBind extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

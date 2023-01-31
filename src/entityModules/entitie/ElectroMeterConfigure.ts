@@ -1,7 +1,7 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
 @Index("electro_id", ["equipId"], {})
-@Entity("electro_meter_configure", { schema: "mynest" })
+@Entity("electro_meter_configure", { schema: "jy_base" })
 export class ElectroMeterConfigure {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
@@ -45,13 +45,6 @@ export class ElectroMeterConfigure {
   })
   equipNumber: string | null;
 
-  @Column("int", {
-    name: "is_delete",
-    comment: "是否真删 0 false  1 true",
-    default: () => "'0'",
-  })
-  isDelete: number;
-
   @Column("varchar", {
     name: "electricitymeter_number",
     nullable: true,
@@ -74,6 +67,13 @@ export class ElectroMeterConfigure {
     length: 255,
   })
   chargingMethodsValue: string | null;
+
+  @Column("int", {
+    name: "is_delete",
+    comment: "是否真删 0 false  1 true",
+    default: () => "'0'",
+  })
+  isDelete: number;
 
   @Column("timestamp", {
     name: "deleted_time",

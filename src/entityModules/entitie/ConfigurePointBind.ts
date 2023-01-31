@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("configure_point_bind", { schema: "mynest" })
+@Entity("configure_point_bind", { schema: "jy_base" })
 export class ConfigurePointBind {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

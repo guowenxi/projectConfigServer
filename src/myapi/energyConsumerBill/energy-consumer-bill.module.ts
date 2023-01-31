@@ -9,8 +9,15 @@ import { EnergyConsumerBillController } from './energy-consumer-bill.controller'
 import { EnergyConsumerBillService } from './energy-consumer-bill.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EnergyBilling, EnergyBillingItems, Applytypes
-    , WaterMeterConfigure, ElectroMeterConfigure])],
+  imports: [TypeOrmModule.forFeature(
+    [
+      EnergyBilling,
+      EnergyBillingItems,
+      Applytypes,
+      WaterMeterConfigure,
+      ElectroMeterConfigure
+    ])
+  ],
   controllers: [EnergyConsumerBillController],
   providers: [EnergyConsumerBillService]
 })

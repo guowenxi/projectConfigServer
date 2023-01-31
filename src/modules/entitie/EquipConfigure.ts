@@ -1,7 +1,7 @@
 import { BaseEntity } from "@modules/commonModule/baseEntity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("equip_configure", { schema: "mynest" })
+@Entity("equip_configure", { schema: "jy_base" })
 export class EquipConfigure extends BaseEntity {
   @PrimaryGeneratedColumn({
     type: "int",
@@ -9,9 +9,6 @@ export class EquipConfigure extends BaseEntity {
     comment: "设备配置表 主表",
   })
   id: number;
-
-  @Column("varchar", { name: "name", nullable: true, length: 255 })
-  name: string | null;
 
   @Column("varchar", {
     name: "equip_id",
@@ -43,4 +40,42 @@ export class EquipConfigure extends BaseEntity {
   })
   equipNumber: string | null;
 
+  @Column("varchar", { name: "name", nullable: true, length: 255 })
+  name: string | null;
+
+  @Column("int", {
+    name: "equip_type",
+    comment: "设备类型\r\n1 普通设备表\r\n2 电表\r\n3 水表",
+  })
+  equipType: number;
+
+  @Column("varchar", {
+    name: "charging_methods_id",
+    comment: "计费方式的id （能耗表使用）",
+    length: 255,
+    nullable: true,
+  })
+  chargingMethodsId: string | null;
+
+  @Column("varchar", {
+    name: "electricitymeter_number",
+    nullable: true,
+    comment: "总表编号 当为分表的时候有效（电表使用）",
+    length: 255,
+  })
+  electricitymeterNumber: string | null;
+
+  @Column("int", {
+    name: "electricitymeter_type",
+    comment: "电表类型 1 分表 2 总表  （电表使用）",
+    nullable: true,
+  })
+  electricitymeterType: number | null;
+
+  @Column("int", {
+    name: "communication_status",
+    comment: "通讯状态：1-在线 0-离线",
+    nullable: true,
+  })
+  communicationStatus: number | null;
 }

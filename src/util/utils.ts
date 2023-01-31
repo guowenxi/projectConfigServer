@@ -1,3 +1,4 @@
+var md5 = require('md5-node');
 
 const getRandomId = () => {
   var ints = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -22,7 +23,8 @@ const getRandomId = () => {
     var id = Math.floor(Math.random() * 26);
     res += chars[id];
   }
-  return res;
+
+  return md5(res);
 }
 
 

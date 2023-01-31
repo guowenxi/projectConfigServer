@@ -1,7 +1,7 @@
 import { BaseEntity } from "@modules/commonModule/baseEntity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("configure_property", { schema: "mynest" })
+@Entity("configure_property", { schema: "jy_base" })
 export class ConfigureProperty extends BaseEntity {
   @PrimaryGeneratedColumn({
     type: "int",

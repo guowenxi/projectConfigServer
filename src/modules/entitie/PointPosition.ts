@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("point_position", { schema: "mynest" })
+@Entity("point_position", { schema: "jy_base" })
 export class PointPosition {
   @Column("varchar", { name: "name", nullable: true, length: 255 })
   name: string | null;

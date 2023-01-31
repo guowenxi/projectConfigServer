@@ -9,7 +9,7 @@ import {
 import { EnergyBillingItems } from "./EnergyBillingItems";
 
 @Index("energy_id", ["energyId"], {})
-@Entity("energy_billing", { schema: "mynest" })
+@Entity("energy_billing", { schema: "jy_base" })
 export class EnergyBilling extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id", comment: "能耗计费主表" })
   id: number;
@@ -32,9 +32,9 @@ export class EnergyBilling extends BaseEntity {
   })
   rate: number | null;
 
-  @OneToMany(
-    () => EnergyBillingItems,
-    (energyBillingItems) => energyBillingItems.energy
-  )
-  energyBillingItems: EnergyBillingItems[];
+  // @OneToMany(
+  //   () => EnergyBillingItems,
+  //   (energyBillingItems) => energyBillingItems.energy
+  // )
+  // energyBillingItems: EnergyBillingItems[];
 }

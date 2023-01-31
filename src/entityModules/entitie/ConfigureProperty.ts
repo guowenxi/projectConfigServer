@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("configure_property", { schema: "mynest" })
+@Entity("configure_property", { schema: "jy_base" })
 export class ConfigureProperty {
   @PrimaryGeneratedColumn({
     type: "int",

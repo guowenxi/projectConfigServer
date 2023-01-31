@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Devicegroup } from "./Devicegroup";
 
-@Entity("applytypes", { schema: "mynest" })
+@Entity("applytypes", { schema: "jy_base" })
 export class Applytypes {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
@@ -29,21 +29,21 @@ export class Applytypes {
   })
   typeId: number | null;
 
-  @Column("timestamp", {
+  @Column("datetime", {
     name: "create_time",
     comment: "创建时间",
-    default: () => "'CURRENT_TIMESTAMP(6)'",
+    default: () => "CURRENT_TIMESTAMP",
   })
   createTime: Date;
 
-  @Column("timestamp", {
+  @Column("datetime", {
     name: "update_time",
     comment: "更新时间",
-    default: () => "'CURRENT_TIMESTAMP(6)'",
+    default: () => "CURRENT_TIMESTAMP",
   })
   updateTime: Date;
 
-  @Column("timestamp", {
+  @Column("datetime", {
     name: "deleted_time",
     nullable: true,
     comment: "删除时间",

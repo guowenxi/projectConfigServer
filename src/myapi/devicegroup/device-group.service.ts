@@ -20,7 +20,7 @@ import { ModuleInfo } from '@modules/entitie/ModuleInfo';
 const moment = require('moment');
 @Injectable()
 export class DeviceGroupService {
-  static error = error
+
   constructor(
     @InjectRepository(Devicegroup)
     private DevicegroupRepository: Repository<Devicegroup>,
@@ -60,14 +60,22 @@ export class DeviceGroupService {
   async getTypeList() {
     let error1 = error
     try {
-      let data = await this.ApplytypesRepository.createQueryBuilder('Applytypes').where("Applytypes.type = :type AND Applytypes.isDelete != 1", { type: 2 }).getMany();
+      let data = await this.ApplytypesRepository.createQueryBuilder('Applytypes')
+        .where("Applytypes.type = :type AND Applytypes.isDelete != 1", { type: 2 })
+        .select(
+          'Applytypes.name', 'name'
+        )
+        .addSelect(
+          'Applytypes.typeId', 'id'
+        )
+        .getRawMany();
       return success('', data)
     } catch (error) {
       return error1('系统错误', error)
     }
   }
 
-  // 设备组 的树 最后包含 设备信息 及点位信息 -- bug
+  // 设备组 的树 最后包含 设备信息 及 点位信息 -- bug
   async getTreeDeviceGroupList() {
     let error1 = error
     try {
@@ -101,8 +109,9 @@ export class DeviceGroupService {
             .leftJoinAndSelect(Devicegroupitems, 'Devicegroupitems', 'Devicegroupitems.id = ConfigurePointConfigure.deviceGroupitemId AND Devicegroupitems.isDelete != 1')
             .select(
               `
-              ConfigurePointConfigure.dataSource  as id,
+              ConfigurePointConfigure.dataSource  as pointId,
               Devicegroupitems.name as name,
+              ConfigurePointConfigure.id as id,
               PointPosition.name as pointName
                `
             )
@@ -120,13 +129,18 @@ export class DeviceGroupService {
   }
 
   // 查询固定项内容
-  async getFiexdItems() {
+  async getFiexdItems(
+    {
+      deveiceTypeId
+    }
+  ) {
+    let error1 = error
     let ary1 = []
     let ary2 = []
     let ary3 = []
     try {
       let ary = await this.DeviceDataitemDictionariesRepository.createQueryBuilder('DeviceDataitemDictionaries')
-        .where('DeviceDataitemDictionaries.isDelete != 1')
+        .where('DeviceDataitemDictionaries.isDelete != 1 AND DeviceDataitemDictionaries.equipTypeId = :deveiceTypeId OR DeviceDataitemDictionaries.equipTypeId = 0', { deveiceTypeId })
         .getMany();
 
       ary.map((res, idx) => {
@@ -149,19 +163,22 @@ export class DeviceGroupService {
       return success('success', data)
 
     } catch (error) {
-      return error(error)
+      return error1('系统错误', error)
     }
   }
 
   // 添加数据
   async addone(obj: DevicegroupDto) {
     try {
-      await this.DevicegroupRepository.createQueryBuilder().insert().into(Devicegroup).values({
-        id: null,
-        deviceGroupId: obj.deviceGroupId,
-        name: obj.name,
-        type: obj.type
-      }).execute();
+      await this.DevicegroupRepository.createQueryBuilder()
+        .insert()
+        .into(Devicegroup)
+        .values({
+          id: null,
+          deviceGroupId: obj.deviceGroupId,
+          name: obj.name,
+          type: obj.type
+        }).execute();
       let arry = obj.Devicegroupitems
       for (let i = 0; i < arry.length; i++) {
         const element = arry[i];
@@ -213,7 +230,7 @@ export class DeviceGroupService {
 
       const data: Array<Devicegroup> = await this.DevicegroupRepository
         .createQueryBuilder('Devicegroup')
-        .leftJoinAndSelect(Applytypes, 'Applytypes', 'Devicegroup.type = Applytypes.id AND Applytypes.isDelete != 1')
+        .leftJoinAndSelect(Applytypes, 'Applytypes', 'Devicegroup.type = Applytypes.typeId AND Applytypes.type = 2 AND Applytypes.isDelete != 1')
         .where(() => {
           let basicStr = `Devicegroup.isDelete != 1`
           if (!!key) {
@@ -231,6 +248,7 @@ export class DeviceGroupService {
           Applytypes.name as typeName
           `
         )
+        .orderBy("Devicegroup.id", "DESC")
         .skip((pageNo - 1) * pageSize)
         .take(pageSize)
         .getRawMany();
@@ -343,7 +361,7 @@ export class DeviceGroupService {
   async deldata(obj: type1) {
     let error1 = error
     try {
-      if (!!obj.ids) {
+      if (!!obj.ids && obj.ids.length > 0) {
         for (let i = 0; i < obj.ids.length; i++) {
           const element = obj.ids[i];
 
@@ -372,10 +390,7 @@ export class DeviceGroupService {
           await this.deldataFather(element)
         }
         return success('')
-      }
-
-      if (!!obj.id) {
-
+      } else if (!!obj.id) {
         // 绑定数据源的时候
         let len1 = await this.ConfigurePointConfigureRepository.createQueryBuilder('ConfigurePointConfigure')
           .where('ConfigurePointConfigure.deviceGroupId = :id ', { id: obj.id })
@@ -400,7 +415,10 @@ export class DeviceGroupService {
         await this.deldataSon(obj.id)
         await this.deldataFather(obj.id)
         return success('')
+      } else {
+        return error('请至少选择一个id来删除')
       }
+
     } catch (error) {
       return error1('系统错误', error)
     }

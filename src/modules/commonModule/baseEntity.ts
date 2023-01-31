@@ -11,25 +11,27 @@ import {
 export class BaseEntity {
 
   @CreateDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     nullable: false,
     name: 'create_time',
     comment: '创建时间',
+    // default: () => "CURRENT_TIMESTAMP()",
     select: false
   })
   createTime: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     nullable: false,
     name: 'update_time',
     comment: '更新时间',
+    // default: () => "'CURRENT_TIMESTAMP()'",
     select: false
   })
   updateTime: Date;
 
   @DeleteDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     nullable: false,
     name: 'deleted_time',
     comment: '删除时间',

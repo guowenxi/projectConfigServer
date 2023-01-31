@@ -1,7 +1,7 @@
 import { BaseEntity } from "@modules/commonModule/baseEntity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("device_dataitem_dictionaries", { schema: "mynest" })
+@Entity("device_dataitem_dictionaries", { schema: "jy_base" })
 export class DeviceDataitemDictionaries extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
@@ -30,10 +30,24 @@ export class DeviceDataitemDictionaries extends BaseEntity {
   type: number | null;
 
   @Column("int", {
+    name: "equip_type_id",
+    nullable: true,
+    comment: "设备类型 ",
+  })
+  equipTypeId: number | null;
+
+  @Column("int", {
     name: "flexd",
     nullable: true,
     comment: "固定项 0 非固定 1固定",
   })
   flexd: number | null;
 
+  @Column("varchar", {
+    name: "equip_type_value",
+    nullable: true,
+    comment: "设备类型name",
+    length: 255,
+  })
+  equipTypeValue: string | null;
 }

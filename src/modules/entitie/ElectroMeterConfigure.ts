@@ -2,7 +2,7 @@ import { BaseEntity } from "@modules/commonModule/baseEntity";
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
 @Index("electro_id", ["equipId"], {})
-@Entity("electro_meter_configure", { schema: "mynest" })
+@Entity("electro_meter_configure", { schema: "jy_base" })
 export class ElectroMeterConfigure extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

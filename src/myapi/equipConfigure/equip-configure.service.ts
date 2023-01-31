@@ -14,6 +14,12 @@ import { PointPosition } from '@modules/entitie/PointPosition';
 import { ModuleInfo } from '@modules/entitie/ModuleInfo';
 import { ConfigurePointBind } from '@modules/entitie/ConfigurePointBind';
 
+// 视图
+import { equipView } from '@modules/view/equipConfig_deviceGroup';
+import { equipAttributeView } from '@modules/view/equipConfig_ConfigureProperty';
+// import { equipConfigPointConfigView } from '@modules/view/equipConfig_configPointConfig';
+
+
 import { savePointType, type1 } from './equip-configure.controller';
 import { DevicegroupitemsDto } from './dto/Devicegroupitems.dto';
 import { EquipConfigureDto } from './dto/EquipConfigure.dto';
@@ -67,6 +73,12 @@ export class EquipConfigureService {
     @InjectRepository(EquipConfigure)
     private EquipConfigureRepository: Repository<EquipConfigure>,
 
+    // 设备表视图
+    @InjectRepository(equipView)
+    private equipViewRepository: Repository<equipView>,
+
+    @InjectRepository(equipAttributeView)
+    private equipAttributeViewRepository: Repository<equipAttributeView>,
   ) { }
 
   async getDeviceGroupList() {
@@ -86,7 +98,9 @@ export class EquipConfigureService {
   }
 
   //查询参数配置表中的参数 及其下拉列表
-  async getAttributedictionaryList() {
+  async getAttributedictionaryList(
+    meterType
+  ) {
     let error1 = error
     try {
       let data = await this.AttributedictionaryRepository.createQueryBuilder('Attributedictionary')
@@ -96,10 +110,9 @@ export class EquipConfigureService {
           'Attributedictionary.attributeId = Attributedictionaryitems.attributeId AND Attributedictionaryitems.isDelete != 1')
         .where("Attributedictionary.applyType LIKE :param AND Attributedictionary.isDelete != 1")
         .setParameters({
-          param: '%' + '1' + '%'
+          param: '%' + meterType + '%'
         })
         .getMany()
-      // getmanyandCount()
       return success('', data)
     } catch (error) {
       return error1('系统错误', error)
@@ -114,37 +127,69 @@ export class EquipConfigureService {
     let error1 = error
     try {
       // 分别查询 再map处理一下
-      let data1 = await this.DevicegroupitemsRepository.createQueryBuilder('Devicegroupitems')
-        .where('enable = 1 AND Devicegroupitems.deviceGroupId = :deviceGroupId AND Devicegroupitems.isDelete != 1', { deviceGroupId })
-        .getMany()
+      // 获取设备组的 具体信息
 
-      let data2 = await this.ConfigurePointConfigureRepository.createQueryBuilder('ConfigurePointConfigure')
-        .where('ConfigurePointConfigure.bindConfigId  = :equipId AND ConfigurePointConfigure.deviceGroupId = :deviceGroupId AND ConfigurePointConfigure.isDelete != 1',
-          { equipId, deviceGroupId })
-        .getMany()
+      // let data = await this.DevicegroupitemsRepository.createQueryBuilder('Devicegroupitems')
+      //   .leftJoinAndSelect(equipConfigPointConfigView, 'equipConfigPointConfigView', 'equipConfigPointConfigView.deviceGroupId = Devicegroupitems.id')
+      //   .select(`
+      // Devicegroupitems.name as name,
+      // Devicegroupitems.stateName as stateName,
+      // Devicegroupitems.deviceGroupId as deviceGroupId,
+      // Devicegroupitems.type as type,
+      // Devicegroupitems.id as id,
+      // equipConfigPointConfigView.dataSource as dataSource
+      // `)
+      //   .getRawMany()
 
-      let newArry = []
+      let data = await this.DevicegroupitemsRepository.createQueryBuilder('Devicegroupitems')
+        .leftJoinAndSelect(ConfigurePointConfigure, 'ConfigurePointConfigure', `
+        ConfigurePointConfigure.isDelete !=1 AND
+        ConfigurePointConfigure.deviceGroupitemId = Devicegroupitems.id AND
+        ConfigurePointConfigure.bindConfigId = :equipId
+        `)
+        .leftJoinAndSelect(PointPosition, 'PointPosition', 'PointPosition.isDelete != 1 AND ConfigurePointConfigure.dataSource = PointPosition.id')
+        .where(`Devicegroupitems.isDelete != 1 
+        AND Devicegroupitems.enable = 1 
+        AND Devicegroupitems.deviceGroupId = :deviceGroupId
+        `, { deviceGroupId, equipId })
+        .select(`
+        Devicegroupitems.name as name,
+        Devicegroupitems.stateName as stateName,
+        Devicegroupitems.deviceGroupId as deviceGroupId,
+        Devicegroupitems.type as type,
+        Devicegroupitems.id as id,
+        PointPosition.id as dataSource
+        `)
+        .getRawMany()
+      return success('', data)
 
-      data1.map((res1, idx1) => {
-        let obj: Array<ConfigurePointConfigure> = data2.filter((res2) => {
-          return res2.deviceGroupitemId == res1.id
-        })
-        let pointConfigClass = {
-          name: res1.name,
-          stateName: res1.stateName,
-          deviceGroupId: res1.deviceGroupId,
-          type: res1.type,
-          id: res1.id,
-          dataSource: null
-        }
-        if (obj.length != 0) {
-          pointConfigClass.dataSource = obj[0].dataSource
-          newArry.push(pointConfigClass)
-        } else {
-          newArry.push(pointConfigClass)
-        }
-      })
-      return success('', newArry)
+    } catch (error) {
+      return error1('系统错误', error)
+    }
+  }
+
+  // 查询全部点位配置的信息 -- 根据设备组id来查询
+  async getAllPointConfigureList({
+    id
+  }) {
+    let error1 = error
+    try {
+
+      let data = await this.ConfigurePointConfigureRepository.createQueryBuilder('ConfigurePointConfigure')
+        .leftJoinAndSelect(Devicegroupitems, 'Devicegroupitems', 'Devicegroupitems.id = ConfigurePointConfigure.deviceGroupitemId AND Devicegroupitems.isDelete != 1')
+        .select(`
+        Devicegroupitems.name as name,
+        Devicegroupitems.stateName as stateName,
+        Devicegroupitems.type as type,
+        ConfigurePointConfigure.dataSource as dataSource
+        `)
+        .where(
+          'ConfigurePointConfigure.isDelete != 1 AND ConfigurePointConfigure.bindConfigId = :id',
+          { id }
+        )
+        .getRawMany()
+
+      return success('', data)
     } catch (error) {
       return error1('系统错误', error)
     }
@@ -153,17 +198,71 @@ export class EquipConfigureService {
   //表单查询
   async getList({
     key,
+    meterType,
     deviceGroupId,
     pageSize,
     pageNo
   }) {
     let error1 = error
     try {
+      let OldList = await this.equipViewRepository
+        .createQueryBuilder('equipView')
+        .leftJoinAndMapMany('equipView.attriList', equipAttributeView, 'equipAttributeView', `
+        equipAttributeView.bindConfigId = equipView.equipId
+        `)
+        .orderBy("equipView.id", "DESC")
+        // .where('equipView.equipType = :meterType', { meterType })
+        .where(() => {
+          let basicStr = 'equipView.equipType = :meterType '
+
+          if (!!key) {
+            basicStr += ` AND equipView.name LIKE '%${key}%' `
+          }
+
+          if (!!deviceGroupId) {
+            basicStr += ` AND equipView.deviceGroupId = :deviceGroupId `
+          }
+
+          return basicStr
+        }, { deviceGroupId, meterType })
+        .getMany()
+
+      let total = 0
+      let list = []
+
+      if (!!pageNo && !!pageSize) {
+        total = OldList.length
+
+        if ((pageNo - 1) * pageSize > total) {
+
+        } else {
+          list = OldList.splice((pageNo - 1) * pageSize, pageSize)
+        }
+      }
+
+      let pageObj: pageType = {
+        list,
+        total,
+        current: pageNo,
+        pageSize
+      }
+
+      return pagination(pageObj)
+
+    } catch (error) {
+      return error1('系统错误', error)
+    }
+  }
+
+  //查询所有的结果
+  async getAllList() {
+    let error1 = error
+    try {
 
       let total = await this.EquipConfigureRepository
         .createQueryBuilder('EquipConfigure')
         .leftJoinAndSelect(Devicegroup, 'Devicegroup', 'Devicegroup.deviceGroupId = EquipConfigure.deviceGroupId AND Devicegroup.isDelete != 1')
-        .where('EquipConfigure.isDelete != 1')
+        .where('EquipConfigure.isDelete != 1 AND EquipConfigure.equipType = 1')
         .getCount()
 
       let data: Array<EquipConfigure | any> = await this.EquipConfigureRepository
@@ -171,54 +270,18 @@ export class EquipConfigureService {
         .leftJoinAndSelect(Devicegroup, 'Devicegroup', 'Devicegroup.deviceGroupId = EquipConfigure.deviceGroupId AND Devicegroup.isDelete != 1')
         .select(
           `
-          Devicegroup.name  as deviceGroupName,
-          EquipConfigure.equipId as equipId,
-          EquipConfigure.equipNumber as equipNumber,
+          EquipConfigure.equipId as id,
           EquipConfigure.name as name,
           EquipConfigure.deviceGroupId as deviceGroupId
           `
         )
         .where(() => {
-          let basicStr = `EquipConfigure.isDelete != 1`
-          if (!!key) {
-            basicStr += ` AND EquipConfigure.name LIKE '%${key}%' `
-          }
-
-          if (!!deviceGroupId) {
-            basicStr += ` AND EquipConfigure.deviceGroupId = :deviceGroupId `
-          }
+          let basicStr = `EquipConfigure.isDelete != 1 AND EquipConfigure.equipType = 1`
           return basicStr
-        }, { deviceGroupId })
-        .skip((pageNo - 1) * pageSize)
-        .take(pageSize)
+        })
         .getRawMany()
 
-      for (let i = 0; i < data.length; i++) {
-        const element = data[i];
-        data[i].attriList = await this.ConfigurePropertyRepository.createQueryBuilder('ConfigureProperty')
-          .leftJoinAndSelect(Attributedictionary, 'Attributedictionary', 'Attributedictionary.attributeId = ConfigureProperty.attributeId AND Attributedictionary.isDelete != 1')
-          .leftJoinAndSelect(Attributedictionaryitems, 'Attributedictionaryitems', 'Attributedictionaryitems.id = ConfigureProperty.valueId AND Attributedictionaryitems.isDelete != 1')
-          .where('ConfigureProperty.bindConfigId = :equipId AND ConfigureProperty.isDelete != 1', { equipId: element.equipId })
-          .select(
-            `
-            Attributedictionary.attributeId  as attributeId,
-            ConfigureProperty.bindConfigId  as bindConfigId,
-            ConfigureProperty.id as id,
-            Attributedictionary.paramName as name,
-            Attributedictionaryitems.name as value,
-            ConfigureProperty.valueId as valueId
-            `
-          )
-          .getRawMany()
-      }
-
-      let pageObj: pageType = {
-        list: data,
-        total,
-        current: pageNo,
-        pageSize
-      }
-      return pagination(pageObj)
+      return success('', data)
     } catch (error) {
       return error1('系统错误', error)
     }
@@ -234,7 +297,7 @@ export class EquipConfigureService {
           ConfigureProperty,
           'ConfigureProperty',
           'ConfigureProperty.bindConfigId = EquipConfigure.equipId AND ConfigureProperty.isDelete != 1')
-        .where('EquipConfigure.equipId = :equipId AND EquipConfigure.isDelete != 1', { equipId: id })
+        .where('EquipConfigure.equipId = :equipId AND EquipConfigure.isDelete != 1 AND EquipConfigure.equipType = 1', { equipId: id })
         .getOne()
       return success('', data)
     } catch (error) {
@@ -257,7 +320,7 @@ export class EquipConfigureService {
           ModuleInfo.name as modalName
           `
           )
-          .where(`PointPosition.name LIKE :key OR ModuleInfo.name LIKE :key AND PointPosition.isDelete != 1`)
+          .where(`(PointPosition.name LIKE :key OR ModuleInfo.name LIKE :key) AND PointPosition.isDelete != 1`)
           .setParameters({
             key: '%' + key + '%'
           })
@@ -284,12 +347,12 @@ export class EquipConfigureService {
     try {
       let data = await this.ConfigurePointBindRepository
         .createQueryBuilder('ConfigurePointBind')
-        .leftJoinAndSelect(PointPosition, 'PointPosition', 'PointPosition.id = ConfigurePointBind.pointId AND PointPosition.isDelete != 1')
-        .leftJoinAndSelect(ModuleInfo, 'ModuleInfo', 'ModuleInfo.id = PointPosition.moduleId AND ModuleInfo.isDelete != 1')
+        .innerJoinAndSelect(PointPosition, 'PointPosition', 'PointPosition.id = ConfigurePointBind.pointId AND PointPosition.isDelete != 1')
+        .innerJoinAndSelect(ModuleInfo, 'ModuleInfo', 'ModuleInfo.id = PointPosition.moduleId AND ModuleInfo.isDelete != 1')
         .select(
           `
         PointPosition.name as name,
-        PointPosition.id as id,
+        PointPosition.id as id, 
         ModuleInfo.name as modalName
         `
         )
@@ -307,7 +370,6 @@ export class EquipConfigureService {
       await this.EquipConfigureRepository
         .createQueryBuilder()
         .insert()
-        .into(EquipConfigure)
         .values(
           {
             id: null,
@@ -315,7 +377,8 @@ export class EquipConfigureService {
             deviceGroupId: obj.deviceGroupId,
             deviceGroupName: obj.deviceGroupName,
             equipId: obj.equipId,
-            equipNumber: obj.equipNumber
+            equipNumber: obj.equipNumber,
+            equipType: 1,
           }
         ).execute();
 
@@ -469,7 +532,6 @@ export class EquipConfigureService {
             .values(newObj)
             .execute();
         }
-
       }
       return success('')
     } catch (error) {

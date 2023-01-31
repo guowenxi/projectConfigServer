@@ -84,9 +84,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors(); //允许跨域
 
-
   // 路由前缀
-  app.setGlobalPrefix("/api");
+  app.setGlobalPrefix("/enginConfigure");
 
   // 加入异常过滤器
   app.useGlobalFilters(new HttpExceptionFilter());

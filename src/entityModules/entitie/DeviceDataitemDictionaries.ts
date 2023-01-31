@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("device_dataitem_dictionaries", { schema: "mynest" })
+@Entity("device_dataitem_dictionaries", { schema: "jy_base" })
 export class DeviceDataitemDictionaries {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
@@ -27,6 +27,13 @@ export class DeviceDataitemDictionaries {
     comment: "分项类型  1 基本参数 2 读取 3 下发",
   })
   type: number | null;
+
+  @Column("int", {
+    name: "equip_type_id",
+    nullable: true,
+    comment: "设备类型 ",
+  })
+  equipTypeId: number | null;
 
   @Column("int", {
     name: "flexd",
@@ -62,4 +69,12 @@ export class DeviceDataitemDictionaries {
     comment: "删除时间",
   })
   deletedTime: Date | null;
+
+  @Column("varchar", {
+    name: "equip_type_value",
+    nullable: true,
+    comment: "设备类型name",
+    length: 255,
+  })
+  equipTypeValue: string | null;
 }

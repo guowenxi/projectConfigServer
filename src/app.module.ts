@@ -6,7 +6,7 @@ import { AppController } from './app.controller';
 import { GraphQLController } from './GraphQL/module';
 // import { FileController } from './File/module';
 import { mysql } from './mysql';
-import { ConfigModule } from '@nestjs/config'; //用于获取node全局环境变量的配置
+import { ConfigModule, ConfigService } from '@nestjs/config'; //用于获取node全局环境变量的配置
 import config from '@/config/config';
 import { AuthGuard } from '@/auth.guard';
 import { LoggingInterceptor } from './logging.interceptor';
@@ -20,6 +20,8 @@ import { DeviceGroupModule } from '@/myapi/devicegroup/device-group.module';
 import { EnergyConsumerBillModule } from '@/myapi/energyConsumerBill/energy-consumer-bill.module';
 import { EquipConfigureModule } from '@myapi/equipConfigure/equip-configure.module';
 import { EnergyMeterConfigureModule } from '@myapi/EnergyMeterConfigure/energy-meter-configure.module';
+import { SystemAlarmModule } from '@myapi/systemAlarm/system-alarm.module';
+import { SystemAlarmPushModule } from '@myapi/systemAlarmPush/system-alarm-push.module';
 
 @Module({
   imports: [
@@ -33,6 +35,33 @@ import { EnergyMeterConfigureModule } from '@myapi/EnergyMeterConfigure/energy-m
     //   playground: false,
     // }),
     mysql, //注入mysql
+
+    // TypeOrmModule.forRoot({
+    //   name: 'albumsConnection',
+    //   type: 'mysql',
+    //   host: '192.168.1.147',
+    //   port: 3306,
+    //   username: 'test',
+    //   password: 'Jiayi123',
+    //   database: 'jy_base',
+    //   autoLoadEntities: false, //是否将自动加载实体
+    //   keepConnectionAlive: true, //在应用程序关闭后连接不会关闭
+    //   synchronize: true,
+    // }),
+
+    // TypeOrmModule.forRoot({
+    //   name: 'albumsConnection',
+    //   type: 'mysql',
+    //   host: 'localhost',
+    //   port: 3306,
+    //   username: 'root',
+    //   password: 'root',
+    //   database: 'mynest',
+    //   autoLoadEntities: false, //是否将自动加载实体
+    //   keepConnectionAlive: true, //在应用程序关闭后连接不会关闭
+    //   synchronize: true,
+    // }),
+
     ScheduleModule.forRoot(), //开启计划任务模块
 
     //可注入其他contrl
@@ -45,6 +74,8 @@ import { EnergyMeterConfigureModule } from '@myapi/EnergyMeterConfigure/energy-m
     EnergyConsumerBillModule,
     EquipConfigureModule,
     EnergyMeterConfigureModule,
+    SystemAlarmModule,
+    SystemAlarmPushModule,
   ],
   //主contrl
   controllers: [

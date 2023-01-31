@@ -10,23 +10,34 @@ import { EquipConfigure } from '@modules/entitie/EquipConfigure';
 import { ModuleInfo } from '@modules/entitie/ModuleInfo';
 import { PointPosition } from '@modules/entitie/PointPosition';
 
+// 视图
+import { equipConfigPointConfigView } from '@modules/view/equipConfig_configPointConfig';
+import { equipAttributeView } from '@modules/view/equipConfig_ConfigureProperty';
+import { equipView } from '@modules/view/equipConfig_deviceGroup';
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EquipConfigureController } from './equip-configure.controller';
 import { EquipConfigureService } from './equip-configure.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    Attributedictionary, Attributedictionaryitems,
-    Devicegroup, Devicegroupitems,
-    ConfigurePointConfigure,
-    ConfigureProperty,
-    ConfigurePointBind,
-    ModuleInfo,
-    PointPosition,
+  imports: [
+    TypeOrmModule.forFeature([
+      Attributedictionary, Attributedictionaryitems,
+      Devicegroup, Devicegroupitems,
+      ConfigurePointConfigure,
+      ConfigureProperty,
+      ConfigurePointBind,
+      ModuleInfo,
+      PointPosition,
 
-    EquipConfigure,
-  ])],
+      EquipConfigure,
+
+      equipView,
+      equipAttributeView,
+      // equipConfigPointConfigView
+    ]),
+  ],
   controllers: [EquipConfigureController],
   providers: [EquipConfigureService]
 })

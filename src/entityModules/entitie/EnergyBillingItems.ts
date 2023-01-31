@@ -1,15 +1,7 @@
-import {
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { EnergyBilling } from "./EnergyBilling";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
 
 @Index("energice_fk1", ["energyId"], {})
-@Entity("energy_billing_items", { schema: "mynest" })
+@Entity("energy_billing_items", { schema: "jy_base" })
 export class EnergyBillingItems {
   @PrimaryGeneratedColumn({ type: "int", name: "id", comment: "能耗计费子表" })
   id: number;
@@ -73,12 +65,4 @@ export class EnergyBillingItems {
     comment: "删除时间",
   })
   deletedTime: Date | null;
-
-  @ManyToOne(
-    () => EnergyBilling,
-    (energyBilling) => energyBilling.energyBillingItems,
-    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
-  )
-  @JoinColumn([{ name: "energy_id", referencedColumnName: "energyId" }])
-  energy: EnergyBilling;
 }

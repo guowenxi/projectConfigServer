@@ -1,7 +1,7 @@
 import { BaseEntity } from "@modules/commonModule/baseEntity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("configure_point_configure", { schema: "mynest" })
+@Entity("configure_point_configure", { schema: "jy_base" })
 export class ConfigurePointConfigure extends BaseEntity {
   @PrimaryGeneratedColumn({
     type: "int",
@@ -17,6 +17,13 @@ export class ConfigurePointConfigure extends BaseEntity {
     length: 255,
   })
   bindConfigId: string | null;
+
+  @Column("int", {
+    name: "device_type",
+    nullable: true,
+    comment: "1 设备表  2 电表 3 水表 ",
+  })
+  deviceType: number | null;
 
   @Column("int", {
     name: "device_groupitem_id",

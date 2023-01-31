@@ -1,8 +1,8 @@
 import { BaseEntity } from "@modules/commonModule/baseEntity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Devicegroup } from "./Devicegroup";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("applytypes", { schema: "mynest" })
+@Entity("applytypes", { schema: "jy_base" })
 export class Applytypes extends BaseEntity {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

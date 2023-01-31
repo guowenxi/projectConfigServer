@@ -16,10 +16,8 @@ import { ConfigurePointBind } from '@modules/entitie/ConfigurePointBind';
 // import { ElectroConfigure } from '@modules/entitie/ElectroConfigure';
 import { savePointType, type1, UpdataChargingMethods } from './energy-meter-configure.controller';
 import { pointConfigListDto } from './dto/pointConfig.dto';
-import { ElectroMeterConfigure } from '@modules/entitie/ElectroMeterConfigure';
 import { ElectroMeterConfigureDto } from './dto/ElectroMeterConfigure.dto';
 import { EnergyBilling } from '@modules/entitie/EnergyBilling';
-import { WaterMeterConfigure } from '@modules/entitie/WaterMeterConfigure';
 import { WaterMeterConfigureDto } from './dto/WaterMeterConfigure.dto';
 
 const moment = require('moment');
@@ -61,13 +59,9 @@ export class EnergyMeterConfigureService {
     @InjectRepository(ModuleInfo)
     private ModuleInfoRepository: Repository<ModuleInfo>,
 
-    // 设备配置表 - 电表
-    @InjectRepository(ElectroMeterConfigure)
-    private ElectroMeterConfigureRepository: Repository<ElectroMeterConfigure>,
-
-    // 设备配置表 - 水表
-    @InjectRepository(WaterMeterConfigure)
-    private WaterMeterConfigureRepository: Repository<WaterMeterConfigure>,
+    // 设备配置表
+    @InjectRepository(EquipConfigure)
+    private EquipConfigureRepository: Repository<EquipConfigure>,
   ) { }
 
   //查询设备组的list - 通用 
@@ -228,6 +222,7 @@ export class EnergyMeterConfigureService {
       )
     }
   }
+
   //表单查询 -- 电表
   async electroMeterGetList({
     key,
@@ -237,14 +232,14 @@ export class EnergyMeterConfigureService {
   }) {
     let error1 = error
     try {
-      let total = await this.ElectroMeterConfigureRepository
+      let total = await this.EquipConfigureRepository
         .createQueryBuilder('ElectroMeterConfigure')
         .leftJoinAndSelect(Devicegroup, 'Devicegroup', 'Devicegroup.deviceGroupId = ElectroMeterConfigure.deviceGroupId AND Devicegroup.isDelete != 1')
         .leftJoinAndSelect(EnergyBilling, 'EnergyBilling', 'EnergyBilling.energyId = ElectroMeterConfigure.chargingMethodsId AND EnergyBilling.isDelete != 1')
-        .where('ElectroMeterConfigure.isDelete != 1')
+        .where('ElectroMeterConfigure.isDelete != 1 AND ElectroMeterConfigure.equipType = 2')
         .getCount()
 
-      let data: Array<ElectroMeterConfigure | any> = await this.ElectroMeterConfigureRepository
+      let data: Array<EquipConfigure | any> = await this.EquipConfigureRepository
         .createQueryBuilder('ElectroMeterConfigure')
         .leftJoinAndSelect(Devicegroup, 'Devicegroup', 'Devicegroup.deviceGroupId = ElectroMeterConfigure.deviceGroupId AND Devicegroup.isDelete != 1')
         .leftJoinAndSelect(EnergyBilling, 'EnergyBilling', 'EnergyBilling.energyId = ElectroMeterConfigure.chargingMethodsId AND EnergyBilling.isDelete != 1')
@@ -261,7 +256,7 @@ export class EnergyMeterConfigureService {
           `
         )
         .where(() => {
-          let basicStr = `ElectroMeterConfigure.isDelete != 1`
+          let basicStr = `ElectroMeterConfigure.isDelete != 1 AND ElectroMeterConfigure.equipType = 2`
           if (!!key) {
             basicStr += ` AND ElectroMeterConfigure.name LIKE '%${key}%' `
           }
@@ -271,6 +266,7 @@ export class EnergyMeterConfigureService {
           }
           return basicStr
         }, { deviceGroupId })
+        .orderBy("ElectroMeterConfigure.id", "DESC")
         .skip((pageNo - 1) * pageSize)
         .take(pageSize)
         .getRawMany()
@@ -306,6 +302,7 @@ export class EnergyMeterConfigureService {
       return error1('系统错误', error)
     }
   }
+
   //表单查询 -- 水表
   async waterMeterGetList(
     {
@@ -317,14 +314,14 @@ export class EnergyMeterConfigureService {
   ) {
     let error1 = error
     try {
-      let total = await this.WaterMeterConfigureRepository
+      let total = await this.EquipConfigureRepository
         .createQueryBuilder('WaterMeterConfigure')
         .leftJoinAndSelect(Devicegroup, 'Devicegroup', 'Devicegroup.deviceGroupId = WaterMeterConfigure.deviceGroupId AND Devicegroup.isDelete != 1')
         .leftJoinAndSelect(EnergyBilling, 'EnergyBilling', 'EnergyBilling.energyId = WaterMeterConfigure.chargingMethodsId AND EnergyBilling.isDelete != 1')
-        .where('WaterMeterConfigure.isDelete != 1')
+        .where('WaterMeterConfigure.isDelete != 1 AND WaterMeterConfigure.equipType = 3')
         .getCount()
 
-      let data: Array<WaterMeterConfigure | any> = await this.WaterMeterConfigureRepository
+      let data: Array<EquipConfigure | any> = await this.EquipConfigureRepository
         .createQueryBuilder('WaterMeterConfigure')
         .leftJoinAndSelect(Devicegroup, 'Devicegroup', 'Devicegroup.deviceGroupId = WaterMeterConfigure.deviceGroupId AND Devicegroup.isDelete != 1')
         .leftJoinAndSelect(EnergyBilling, 'EnergyBilling', 'EnergyBilling.energyId = WaterMeterConfigure.chargingMethodsId AND EnergyBilling.isDelete != 1')
@@ -339,7 +336,7 @@ export class EnergyMeterConfigureService {
           `
         )
         .where(() => {
-          let basicStr = `WaterMeterConfigure.isDelete != 1`
+          let basicStr = `WaterMeterConfigure.isDelete != 1 AND WaterMeterConfigure.equipType = 3`
           if (!!key) {
             basicStr += ` AND WaterMeterConfigure.name LIKE '%${key}%' `
           }
@@ -352,10 +349,9 @@ export class EnergyMeterConfigureService {
 
         }, { deviceGroupId })
         .skip((pageNo - 1) * pageSize)
+        .orderBy("WaterMeterConfigure.id", "DESC")
         .take(pageSize)
         .getRawMany()
-      // .where('WaterMeterConfigure.isDelete != 1')
-      // .getRawMany()
 
       for (let i = 0; i < data.length; i++) {
         const element = data[i];
@@ -401,7 +397,7 @@ export class EnergyMeterConfigureService {
   async electroMeterGetDetail(id) {
     let error1 = error
     try {
-      let data: ElectroMeterConfigure = await this.ElectroMeterConfigureRepository
+      let data: EquipConfigure = await this.EquipConfigureRepository
         .createQueryBuilder('ElectroMeterConfigure')
         .leftJoinAndMapMany(
           'ElectroMeterConfigure.attriList',
@@ -420,7 +416,7 @@ export class EnergyMeterConfigureService {
   async waterMeterGetDetail(id) {
     let error1 = error
     try {
-      let data: WaterMeterConfigure = await this.WaterMeterConfigureRepository
+      let data: EquipConfigure = await this.EquipConfigureRepository
         .createQueryBuilder('WaterMeterConfigure')
         .leftJoinAndMapMany(
           'WaterMeterConfigure.attriList',
@@ -450,7 +446,7 @@ export class EnergyMeterConfigureService {
           ModuleInfo.name as modalName
           `
           )
-          .where(`PointPosition.name LIKE :key OR ModuleInfo.name LIKE :key AND PointPosition.isDelete != 1`)
+          .where(`(PointPosition.name LIKE :key OR ModuleInfo.name LIKE :key) AND PointPosition.isDelete != 1`)
           .setParameters({
             key: '%' + key + '%'
           })
@@ -512,10 +508,9 @@ export class EnergyMeterConfigureService {
   async electroMeterAddone(obj: ElectroMeterConfigureDto) {
     let error1 = error
     try {
-      await this.ElectroMeterConfigureRepository
+      await this.EquipConfigureRepository
         .createQueryBuilder()
         .insert()
-        .into(ElectroMeterConfigure)
         .values(
           {
             id: null,
@@ -524,9 +519,9 @@ export class EnergyMeterConfigureService {
             deviceGroupName: obj.deviceGroupName,
             equipId: obj.equipId,
             equipNumber: obj.equipNumber,
+            equipType: 2,
 
             chargingMethodsId: obj.chargingMethodsId,
-            chargingMethodsValue: obj.chargingMethodsValue,
             electricitymeterType: obj.electricitymeterType,
             electricitymeterNumber: obj.electricitymeterNumber || null
           }
@@ -566,10 +561,9 @@ export class EnergyMeterConfigureService {
   async waterMeterAddone(obj: WaterMeterConfigureDto) {
     let error1 = error
     try {
-      await this.WaterMeterConfigureRepository
+      await this.EquipConfigureRepository
         .createQueryBuilder()
         .insert()
-        .into(WaterMeterConfigure)
         .values(
           {
             id: null,
@@ -579,9 +573,9 @@ export class EnergyMeterConfigureService {
             deviceGroupName: obj.deviceGroupName,
             equipId: obj.equipId,
             equipNumber: obj.equipNumber,
+            equipType: 3,
 
             chargingMethodsId: obj.chargingMethodsId,
-            chargingMethodsValue: obj.chargingMethodsValue,
           }
         ).execute();
 
@@ -683,7 +677,6 @@ export class EnergyMeterConfigureService {
         .where("bindConfigureId = :bindConfigId", { bindConfigId: obj.equipId })
         .execute();
 
-
       await this.ConfigurePointBindRepository.createQueryBuilder('ConfigurePointBind')
         .insert()
         .into(ConfigurePointBind)
@@ -720,11 +713,10 @@ export class EnergyMeterConfigureService {
 
           const id = equipIds[i]
 
-          await this.ElectroMeterConfigureRepository.createQueryBuilder()
-            .update(ElectroMeterConfigure)
+          await this.EquipConfigureRepository.createQueryBuilder()
+            .update()
             .set({
-              chargingMethodsId,
-              chargingMethodsValue
+              chargingMethodsId
             })
             .where("equipId = :equipId", { equipId: id })
             .execute();
@@ -749,11 +741,10 @@ export class EnergyMeterConfigureService {
 
           const id = equipIds[i]
 
-          await this.WaterMeterConfigureRepository.createQueryBuilder()
-            .update(WaterMeterConfigure)
+          await this.EquipConfigureRepository.createQueryBuilder()
+            .update()
             .set({
-              chargingMethodsId,
-              chargingMethodsValue
+              chargingMethodsId
             })
             .where("equipId = :equipId", { equipId: id })
             .execute();
@@ -788,8 +779,8 @@ export class EnergyMeterConfigureService {
     try {
       let { configurePropertyList } = obj
 
-      await this.ElectroMeterConfigureRepository.createQueryBuilder('ElectroMeterConfigure')
-        .update(ElectroMeterConfigure)
+      await this.EquipConfigureRepository.createQueryBuilder('ElectroMeterConfigure')
+        .update()
         .set({
           deviceGroupId: obj.deviceGroupId,
           deviceGroupName: obj.deviceGroupName,
@@ -797,7 +788,6 @@ export class EnergyMeterConfigureService {
           name: obj.name,
 
           chargingMethodsId: obj.chargingMethodsId,
-          chargingMethodsValue: obj.chargingMethodsValue,
           electricitymeterType: obj.electricitymeterType,
           electricitymeterNumber: obj.electricitymeterNumber || null
         })
@@ -843,8 +833,8 @@ export class EnergyMeterConfigureService {
     try {
       let { configurePropertyList } = obj
 
-      await this.WaterMeterConfigureRepository.createQueryBuilder('WaterMeterConfigure')
-        .update(WaterMeterConfigure)
+      await this.EquipConfigureRepository.createQueryBuilder('WaterMeterConfigure')
+        .update()
         .set({
           deviceGroupId: obj.deviceGroupId,
           deviceGroupName: obj.deviceGroupName,
@@ -852,7 +842,6 @@ export class EnergyMeterConfigureService {
           name: obj.name,
 
           chargingMethodsId: obj.chargingMethodsId,
-          chargingMethodsValue: obj.chargingMethodsValue,
         })
         .where("equipId = :equipId", { equipId: obj.equipId })
         .execute();
@@ -945,6 +934,7 @@ export class EnergyMeterConfigureService {
       return error1('系统错误', error)
     }
   }
+
   //  删除点位绑定表
   async delPointBind(id) {
     let error1 = error
@@ -980,17 +970,11 @@ export class EnergyMeterConfigureService {
     let error1 = error
     try {
       let data1 = moment().format("YYYY-MM-DD HH:mm:ss")
-      await this.ElectroMeterConfigureRepository.createQueryBuilder()
-        .update(ElectroMeterConfigure)
+      await this.EquipConfigureRepository.createQueryBuilder()
+        .update()
         .set({ isDelete: 1, deletedTime: data1 })
         .where("equipId = :equipId", { equipId: id })
         .execute();
-
-      // await this.ElectroMeterConfigureRepository
-      //   .createQueryBuilder()
-      //   .delete()
-      //   .where("equipId = :equipId", { equipId: id })
-      //   .execute();
     } catch (error) {
       return error1('系统错误', error)
     }
@@ -1001,8 +985,8 @@ export class EnergyMeterConfigureService {
     let error1 = error
     try {
       let data1 = moment().format("YYYY-MM-DD HH:mm:ss")
-      await this.WaterMeterConfigureRepository.createQueryBuilder()
-        .update(WaterMeterConfigure)
+      await this.EquipConfigureRepository.createQueryBuilder()
+        .update()
         .set({ isDelete: 1, deletedTime: data1 })
         .where("equipId = :equipId", { equipId: id })
         .execute();

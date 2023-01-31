@@ -33,8 +33,8 @@ export class DeviceGroupController {
 
   // 查询固定
   @Get('/getFlexdItemeList')
-  async getFlexdItemeList() {
-    return await this.DeviceGroupService.getFiexdItems();
+  async getFlexdItemeList(@Query('deveiceTypeId') deveiceTypeId) {
+    return await this.DeviceGroupService.getFiexdItems({ deveiceTypeId });
   }
 
   // 添加数据

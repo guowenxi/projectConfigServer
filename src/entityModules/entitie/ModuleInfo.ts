@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("module_info", { schema: "mynest" })
+@Entity("module_info", { schema: "jy_base" })
 export class ModuleInfo {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;

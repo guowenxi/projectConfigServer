@@ -52,6 +52,7 @@ export class EquipParapetService {
         })
         .skip((pageNo - 1) * pageSize)
         .take(pageSize)
+        .orderBy("Attributedictionary.id", "DESC")
         .getManyAndCount()
 
       let obj: pageType = {
@@ -126,7 +127,8 @@ export class EquipParapetService {
           Attributedictionaryitems,
           'Attributedictionaryitems',
           'Attributedictionary.attribute_id = Attributedictionaryitems.attribute_id AND Attributedictionaryitems.isDelete != 1',
-        ).where("Attributedictionary.id = :id AND Attributedictionary.isDelete != 1", { id })
+        )
+        .where("Attributedictionary.id = :id AND Attributedictionary.isDelete != 1", { id })
         .getOne();
       return success('查询成功', data)
     } catch (error) {

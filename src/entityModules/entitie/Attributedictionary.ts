@@ -8,7 +8,7 @@ import {
 import { Attributedictionaryitems } from "./Attributedictionaryitems";
 
 @Index("uuid", ["attributeId"], {})
-@Entity("attributedictionary", { schema: "mynest" })
+@Entity("attributedictionary", { schema: "jy_base" })
 export class Attributedictionary {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
@@ -40,13 +40,6 @@ export class Attributedictionary {
   deletedTime: Date | null;
 
   @Column("timestamp", {
-    name: "create_time",
-    comment: "创建时间",
-    default: () => "'CURRENT_TIMESTAMP(6)'",
-  })
-  createTime: Date;
-
-  @Column("timestamp", {
     name: "update_time",
     comment: "更新时间",
     default: () => "'CURRENT_TIMESTAMP(6)'",
@@ -59,6 +52,13 @@ export class Attributedictionary {
     default: () => "'0'",
   })
   isDelete: number;
+
+  @Column("timestamp", {
+    name: "create_time",
+    comment: "创建时间",
+    default: () => "'CURRENT_TIMESTAMP(6)'",
+  })
+  createTime: Date;
 
   @OneToMany(
     () => Attributedictionaryitems,
